@@ -1,4 +1,4 @@
-from models import Pessoas
+from models import Pessoas, Usuarios
 
 #Insere dados
 def insere_pessoas():
@@ -34,8 +34,22 @@ def exclui_pessoa():
     print(f'Vc exclui o registro com o nome {nome} de {pessoa.idade} anos.')
 
 
+#insere usuários
+def insere_usuario(login, senha):
+    usuario = Usuarios(login=login, senha=senha)
+    usuario.save()
+
+
+def consulta_usuarios():
+    usuarios = Usuarios.query.all()
+    print(usuarios)
+
+
 if __name__ == '__main__':
     #insere_pessoas()
-    consulta_pessoa()
+    #consulta_pessoa()
     #altera_pessoa()
     #exclui_pessoa()
+    #insere_usuario('andre', '123')
+    #insere_usuario('andreia', '321')
+    consulta_usuarios()

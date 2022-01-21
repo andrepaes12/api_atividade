@@ -1,9 +1,25 @@
 from flask import Flask, request
 from flask_restful import Resource, Api
-from models import Pessoas, Atividades
+from models import Pessoas, Atividades, Usuarios
+from flask_httpauth import HTTPBasicAuth
 
+auth = HTTPBasicAuth()
 app = Flask(__name__)
 api = Api(app)
+
+#dic password
+# USUARIOS = {
+#     'andre': '123',
+#     'andreia': '321'
+# }     #criação da tabela usuarios via models.py
+
+@auth.verify_password   #exigir acesso com login/senha
+def verificacao(login, senha):
+    if not (login, senha):
+        return False
+    #return USUARIOS.get(login) == senha
+    return Usuarios.query.filter_by(login=login, senha=senha).first()
+
 
 class ListaPessoas(Resource):
     def get(self):
@@ -16,6 +32,7 @@ class ListaPessoas(Resource):
         ]
         return response
 
+    @auth.login_required  # executará a função se estiver logado
     def post(self):
         dados = request.json    #passar os dados no body do json via Postman
         pessoa = Pessoas(nome=dados['nome'], idade=dados['idade'])
@@ -38,6 +55,7 @@ class Pessoa(Resource):
         }
         return response
 
+    @auth.login_required
     def put(self, nome):
         pessoa = Pessoas.query.filter_by(nome=nome).first()
         dados = request.json
@@ -53,6 +71,7 @@ class Pessoa(Resource):
         }
         return response
 
+    @auth.login_required
     def delete(self, nome):
         pessoa = Pessoas.query.filter_by(nome=nome).first()
         mensagem = f'Pessoa {pessoa.nome} excluída com sucesso'
@@ -66,6 +85,7 @@ class ListaAtividades(Resource):
         response = [{'id': i.id, 'nome': i.nome, 'pessoa': i.pessoa.nome} for i in atividades]
         return response
 
+    @auth.login_required  # executará a função se estiver logado
     def post(self):
         dados = request.json    #passar os dados no body do json via Postman
         pessoa = Pessoas.query.filter_by(nome=dados['pessoa']).first()
